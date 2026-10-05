@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import mark from '../assets/site/mark-light.png';
+import { company, nav } from '../data/site';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => !href.includes('#') && path.startsWith(href);
+const menuLinks = [{ label: 'Home', href: '/' }, ...nav, { label: 'Contact', href: '/contact/' }];
+---
+
+<header class="site-header">
+	<div class="header-bar">
+		<a class="brand" href="/" aria-label={`${company.name} home`}>
+			<Image src={mark} alt="" height={46} densities={[1, 2]} loading="eager" />
+			<span class="brand__name">Marble<small>Homes</small></span>
+		</a>
+		<nav class="header-nav" aria-label="Primary">
+			{nav.map((item) => <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>)}
+			<a class="pill pill--dark" href="/contact/">Contact us</a>
+		</nav>
+	</div>
+	<div class="header-pills">
+		<a class="pill pill--dark" href="/contact/">Contact us</a>
+		<button class="pill pill--light pill--plain" type="button" data-menu-open aria-expanded="false" aria-controls="site-menu">
+			<span class="menu-toggle-label">Menu</span>
+		</button>
+	</div>
+</header>
+
+<div class="menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Site menu">
+	<div class="menu__top">
+		<a class="brand" href="/" aria-label={`${company.name} home`}>
+			<Image src={mark} alt="" height={46} densities={[1, 2]} />
+			<span class="brand__name">Marble<small>Homes</small></span>
+		</a>
+		<button class="pill pill--light pill--plain" type="button" data-menu-close>Close</button>
+	</div>
+	<ul class="menu__links">
+		{
+			menuLinks.map((item, i) => (
+				<li>
+					<a href={item.href} data-menu-link>
+						<span>{String(i + 1).padStart(2, '0')}</span>
+						{item.label}
+					</a>
+				</li>
+			))
+		}
+	</ul>
+	<div class="menu__foot">
+		<span>{company.addressLines.join(', ')}</span>
+		<span><a href={`mailto:${company.email}`}>{company.email}</a> · <a href={company.phoneHref}>{company.phone}</a></span>
+	</div>
+</div>

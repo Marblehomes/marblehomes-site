@@ -1,0 +1,80 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { company, services } from '../data/site';
+import sydney from '../assets/site/sydney.jpg';
+---
+
+<Base title="Contact" description="Contact Marble Homes in Burwood, NSW about architectural design, construction and project management.">
+	<section class="page-hero">
+		<span class="eyebrow" data-reveal>Contact</span>
+		<h1 class="display t-display" data-split="load">
+			You tell us.<br /><span class="t-muted">We listen</span><span class="dot">.</span>
+		</h1>
+		<div class="page-hero__intro prose" data-reveal>
+			<p class="t-lead" style="color:var(--cream)">We're here to help. Have any queries? Don't be a stranger.</p>
+			<p>Reach out for guidance, a no-obligation quote, or to enlist our services for your upcoming project.</p>
+		</div>
+	</section>
+
+	<section class="section" style="padding-top:clamp(2rem,4vw,3rem)">
+		<div class="grid-12 contact-grid">
+			<dl class="contact-details" data-reveal>
+				<div><dt>Phone</dt><dd><a href={company.phoneHref}>{company.phone}</a></dd></div>
+				<div><dt>Email</dt><dd><a href={`mailto:${company.email}`}>{company.email}</a></dd></div>
+				<div><dt>Office</dt><dd>{company.addressLines.map((l) => <>{l}<br /></>)}</dd></div>
+				<div><dt>Director</dt><dd>{company.director}</dd></div>
+			</dl>
+
+			<form class="form" data-contact-form data-email={company.email} novalidate data-reveal>
+				<div class="field">
+					<label for="f-first">First name *</label>
+					<input id="f-first" name="firstName" autocomplete="given-name" required />
+				</div>
+				<div class="field">
+					<label for="f-last">Last name</label>
+					<input id="f-last" name="lastName" autocomplete="family-name" />
+				</div>
+				<div class="field">
+					<label for="f-email">Email *</label>
+					<input id="f-email" name="email" type="email" autocomplete="email" required />
+				</div>
+				<div class="field">
+					<label for="f-phone">Phone *</label>
+					<input id="f-phone" name="phone" type="tel" autocomplete="tel" required />
+				</div>
+				<div class="field field--full">
+					<label for="f-suburb">Project suburb</label>
+					<input id="f-suburb" name="suburb" autocomplete="address-level2" placeholder="E.g. Burwood" />
+				</div>
+				<div class="field field--full">
+					<fieldset>
+						<legend>What's your enquiry regarding?</legend>
+						<div class="chips">
+							{
+								services.map((s, i) => (
+									<label class="chip">
+										<input type="radio" name="enquiry" value={s.title} checked={i === 1} />
+										<span>{s.title}</span>
+									</label>
+								))
+							}
+						</div>
+					</fieldset>
+				</div>
+				<div class="field field--full">
+					<label for="f-message">Message</label>
+					<textarea id="f-message" name="message" placeholder="Tell us about your project"></textarea>
+				</div>
+				<div class="form__foot">
+					<button class="pill pill--light" type="submit">Send message</button>
+					<p class="form__status" role="status" data-form-status></p>
+				</div>
+			</form>
+		</div>
+	</section>
+
+	<div class="media-band cover">
+		<Image src={sydney} alt="Aerial view of Sydney Harbour" widths={[960, 1440, 2560]} sizes="100vw" data-parallax />
+	</div>
+</Base>

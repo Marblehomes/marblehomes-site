@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { categories, projects } from '../../data/projects';
+
+const counts = Object.fromEntries(categories.map((c) => [c, projects.filter((p) => p.category === c).length]));
+---
+
+<Base title="Projects" description="Selected new builds, renovations, extensions and commercial fit-outs delivered by Marble Homes across Sydney.">
+	<section class="page-hero">
+		<span class="eyebrow" data-reveal>Portfolio</span>
+		<h1 class="display t-display" data-split="load">
+			Our<br /><span class="t-muted">Projects</span><span class="dot">.</span>
+		</h1>
+		<div class="page-hero__intro prose" data-reveal>
+			<p class="t-lead" style="color:var(--cream)">
+				Luxurious residential properties, commercial spaces and custom-designed homes across Sydney — built by Marble Homes on schedule, within
+				budget and with clients involved at every stage.
+			</p>
+		</div>
+	</section>
+
+	<section class="wrap" style="padding-bottom:var(--section-y)">
+		<div class="filters" role="toolbar" aria-label="Filter projects" data-filters>
+			<button class="filter is-active" type="button" data-filter="all" aria-pressed="true">All<sup>{projects.length}</sup></button>
+			{
+				categories.map((c) => (
+					<button class="filter" type="button" data-filter={c} aria-pressed="false">
+						{c}
+						<sup>{counts[c]}</sup>
+					</button>
+				))
+			}
+		</div>
+		<div class="project-grid" data-project-grid>
+			{projects.map((p, i) => <ProjectCard project={p} sizes="(max-width: 960px) 100vw, 48vw" eager={i < 2} />)}
+		</div>
+	</section>
+</Base>

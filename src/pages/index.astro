@@ -1,0 +1,195 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { about, company, process, quote, reasons, services, statements } from '../data/site';
+import { featured } from '../data/projects';
+import heroImage from '../assets/site/hero-dusk.jpg';
+import houseWhite from '../assets/site/house-white.jpg';
+import interiorKitchen from '../assets/site/interior-kitchen.jpg';
+import director from '../assets/site/director.jpg';
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<Base>
+	<section class="hero" data-hero>
+		<div class="hero__media">
+			<Image src={heroImage} alt="Contemporary home at dusk" widths={[960, 1440, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
+		</div>
+		<div class="hero__content">
+			<div>
+				<div class="hero__tagline" data-reveal>
+					{company.tagline.map((t) => <span>{t}</span>)}
+				</div>
+				<h1 class="display t-mega" data-split="load">Excellence<br />in every aspect</h1>
+			</div>
+			<a class="scroll-cue" href="#studio">
+				Explore
+				<svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M6 1v12m0 0L1 8m5 5 5-5" stroke="currentColor" stroke-width="1.5"></path></svg>
+			</a>
+		</div>
+	</section>
+
+	<section class="section" id="studio">
+		<div class="grid-12">
+			<div class="intro__heading">
+				<span class="eyebrow" data-reveal>About Marble Homes</span>
+				<h2 class="display t-display" style="margin-top:1.4rem" data-split>
+					Transparent.<br /><span class="t-muted">Accountable</span><span class="dot">.</span>
+				</h2>
+			</div>
+			<div class="intro__body prose" data-reveal>
+				<p class="t-lead">{about.lead}</p>
+				<p>{about.paragraphs[0]}</p>
+				<p>{about.paragraphs[1]}</p>
+			</div>
+		</div>
+	</section>
+
+	<div class="media-band cover">
+		<Image src={houseWhite} alt="Modern white residence with glazed living pavilion" widths={[960, 1440, 1920, 2560]} sizes="100vw" data-parallax />
+	</div>
+
+	<section class="section">
+		<div class="grid-12 statements">
+			<div class="statements__list" data-statements>
+				<span>We</span>
+				<ul>
+					{statements.map((s, i) => <li class={i === 0 ? 'is-active' : undefined}>{s}</li>)}
+				</ul>
+			</div>
+			<div class="statements__copy prose" data-reveal>
+				<p class="t-lead" style="color:var(--cream)">{about.paragraphs[2]}</p>
+				<p>
+					We believe in transparency and accountability, providing our clients with upfront cost estimates to avoid any surprises midway through the
+					project.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="selected" aria-labelledby="selected-title">
+		<div class="selected__sticky">
+			<h2 id="selected-title" class="display t-display">Our<br />Work</h2>
+		</div>
+		<div class="selected__list grid-12">
+			{featured.map((p) => <ProjectCard project={p} />)}
+		</div>
+		<div class="selected__cta">
+			<a class="pill pill--ghost" href="/projects/">Browse the portfolio</a>
+		</div>
+	</section>
+
+	<section class="section" id="services">
+		<div class="services__head">
+			<span class="eyebrow" data-reveal>What we do</span>
+			<h2 class="display t-display" data-split>Our Services</h2>
+		</div>
+		<div class="acc" data-accordion>
+			{
+				services.map((s, i) => (
+					<div class={`acc-item${i === 0 ? ' is-open' : ''}`}>
+						<button class="acc-trigger" type="button" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`svc-${i}`}>
+							<span class="acc-num">{pad(i + 1)}/</span>
+							<span class="acc-title">{s.title}</span>
+							<span class="acc-icon" aria-hidden="true" />
+						</button>
+						<div class="acc-panel" id={`svc-${i}`} role="region">
+							<div>
+								<div class="acc-body">
+									<div class="prose">
+										<p class="t-lead">{s.summary}</p>
+										<p>{s.detail}</p>
+									</div>
+									<div class="acc-media cover">
+										<Image src={s.image} alt={s.title} widths={[400, 760]} sizes="380px" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section bg-cream" id="process">
+		<div class="process__head">
+			<span class="eyebrow" data-reveal>How we work</span>
+			<h2 class="display t-display" data-split>
+				<span class="soft">From brief</span><br /><span class="soft">to</span> handover
+			</h2>
+		</div>
+		{
+			process.map((step, i) => (
+				<article class="step grid-12">
+					<div class="step__num">{pad(i + 1)}</div>
+					<div class="step__content">
+						<h3 class="display t-h2" data-split>
+							{step.title}
+						</h3>
+						<div class="prose" data-reveal>
+							{step.body.map((p) => (
+								<p>{p}</p>
+							))}
+						</div>
+						<div class="step__media cover" data-reveal>
+							<Image src={step.image} alt={step.title} widths={[640, 960, 1400]} sizes="(max-width: 960px) 100vw, 55vw" />
+						</div>
+					</div>
+				</article>
+			))
+		}
+	</section>
+
+	<section class="section bg-cream" style="padding-top:0">
+		<div class="reasons__head">
+			<h2 class="display t-h2" data-split>
+				Why choose<br /><span class="soft">Marble Homes</span>
+			</h2>
+			<a class="pill pill--dark" href="/about/">About us</a>
+		</div>
+		<div class="reasons__grid">
+			{
+				reasons.map((r, i) => (
+					<div class="reason" data-reveal>
+						<span class="reason__num">{pad(i + 1)}</span>
+						<h3>{r.title}</h3>
+						<p>{r.body}</p>
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section quote">
+		<span class="eyebrow">From the Director</span>
+		<figure style="margin:0">
+			<blockquote data-quote>“{quote}”</blockquote>
+			<figcaption>
+				<Image src={director} alt={company.director} width={116} height={116} />
+				<div><strong>{company.director}</strong><span>Director, Marble Homes</span></div>
+			</figcaption>
+		</figure>
+	</section>
+
+	<section class="expand" data-expand aria-label="Built to last">
+		<div class="expand__sticky">
+			<h2 class="expand__title display t-display">Built to Last</h2>
+			<div class="expand__frame" data-expand-frame>
+				<Image src={interiorKitchen} alt="Luxury kitchen with marble island" widths={[960, 1600, 2400]} sizes="100vw" />
+			</div>
+			<div class="expand__caption" data-expand-caption>
+				<h3 class="display t-h2">Durable materials.<br /><span class="t-muted">Lasting impressions.</span></h3>
+				<a class="pill pill--light" href="/projects/">Explore projects</a>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.bg-cream .soft {
+		color: var(--greige);
+	}
+</style>

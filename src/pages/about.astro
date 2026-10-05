@@ -1,0 +1,194 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { about, company, quote, reasons, services } from '../data/site';
+import interiorStair from '../assets/site/interior-stair.jpg';
+import director from '../assets/site/director.jpg';
+
+const pillars = [
+	{
+		title: 'Design',
+		body: 'Our team is adept not only in addressing your construction requirements but also in remedial works and office space planning. We offer a comprehensive scope of works, product specification lists, working drawings, and engineer’s details, supported by specialist consultants, engineers and experts who have collaborated with Marble Homes for over seven years.',
+	},
+	{
+		title: 'Build',
+		body: 'Marble Homes takes immense pride in every project we undertake. Some of our smallest assignments have paved the way for our most significant ventures. We provide upfront cost estimates to avoid surprises, and our seasoned project managers anticipate challenges and inform clients in advance.',
+	},
+	{
+		title: 'Management',
+		body: 'We specialise in the delivery of projects in challenging environments. From inception, project definition, approvals and design development through procurement, construction delivery, commissioning and handover — we initiate, plan, execute & control every process.',
+	},
+];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<Base title="About" description={about.lead}>
+	<section class="page-hero">
+		<span class="eyebrow" data-reveal>About us</span>
+		<h1 class="display t-display" data-split="load">
+			About<br /><span class="t-muted">Marble Homes</span><span class="dot">.</span>
+		</h1>
+		<div class="page-hero__intro prose" data-reveal>
+			<p class="t-lead" style="color:var(--cream)">{about.lead}</p>
+			{about.paragraphs.map((p) => <p>{p}</p>)}
+		</div>
+	</section>
+
+	<div class="media-band cover">
+		<Image src={interiorStair} alt="Sculptural staircase in a luxury residence" widths={[960, 1440, 1920, 2560]} sizes="100vw" data-parallax />
+	</div>
+
+	<section class="section">
+		<span class="eyebrow" data-reveal>What we do</span>
+		<h2 class="display t-display" style="margin:1.2rem 0 clamp(3rem,6vw,5rem)" data-split>
+			Design. Build.<br /><span class="t-muted">Manage.</span>
+		</h2>
+		<div class="pillars">
+			{
+				pillars.map((p, i) => (
+					<article class="pillar" data-reveal>
+						<span class="acc-num">{pad(i + 1)}/</span>
+						<h3 class="display t-h3">{p.title}</h3>
+						<p>{p.body}</p>
+					</article>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section bg-cream">
+		<div class="reasons__head">
+			<h2 class="display t-h2" data-split>
+				Why choose<br /><span class="soft">Marble Homes</span>
+			</h2>
+		</div>
+		<div class="reasons__grid">
+			{
+				reasons.map((r, i) => (
+					<div class="reason" data-reveal>
+						<span class="reason__num">{pad(i + 1)}</span>
+						<h3>{r.title}</h3>
+						<p>{r.body}</p>
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="grid-12 founder">
+			<div class="founder__photo cover" data-reveal>
+				<Image src={director} alt={company.director} widths={[480, 968]} sizes="(max-width: 960px) 100vw, 30vw" />
+			</div>
+			<div class="founder__copy">
+				<span class="eyebrow" data-reveal>Founder & Director</span>
+				<h2 class="display t-h2" style="margin:1.2rem 0 2rem" data-split>{company.director}</h2>
+				<blockquote class="t-lead" data-reveal>“{quote}”</blockquote>
+				<div style="margin-top:2.5rem" data-reveal>
+					<a class="pill pill--light" href="/contact/">Talk to Kevin</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section bg-deep">
+		<span class="eyebrow" data-reveal>Our services</span>
+		<div class="svc-strip">
+			{
+				services.map((s) => (
+					<a class="svc" href="/#services" data-reveal>
+						<div class="svc__media cover">
+							<Image src={s.image} alt={s.title} widths={[480, 900]} sizes="(max-width: 960px) 100vw, 32vw" />
+						</div>
+						<h3 class="card__name">{s.title}</h3>
+						<p>{s.summary}</p>
+					</a>
+				))
+			}
+		</div>
+	</section>
+</Base>
+
+<style>
+	.pillars {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--gutter);
+		border-top: 1px solid var(--line);
+	}
+
+	.pillar {
+		padding-top: 2rem;
+	}
+
+	.pillar h3 {
+		margin: 1.4rem 0 1rem;
+	}
+
+	.pillar p,
+	.svc p {
+		color: rgb(250 245 237 / 0.78);
+	}
+
+	.bg-cream .soft {
+		color: var(--greige);
+	}
+
+	.founder {
+		align-items: center;
+		row-gap: 3rem;
+	}
+
+	.founder__photo {
+		grid-column: 1 / span 4;
+		aspect-ratio: 1;
+		border-radius: var(--radius);
+	}
+
+	.founder__copy {
+		grid-column: 6 / span 7;
+	}
+
+	.founder__copy blockquote {
+		margin: 0;
+		color: rgb(250 245 237 / 0.85);
+	}
+
+	.svc-strip {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--gutter);
+		margin-top: 2.5rem;
+	}
+
+	.svc__media {
+		aspect-ratio: 4 / 3;
+		border-radius: var(--radius);
+		margin-bottom: 1.2rem;
+	}
+
+	.svc__media img {
+		transition: transform 1.1s var(--ease-out);
+	}
+
+	.svc:hover .svc__media img {
+		transform: scale(1.06);
+	}
+
+	.svc p {
+		margin-top: 0.6rem;
+		font-size: 0.95rem;
+	}
+
+	@media (max-width: 960px) {
+		.pillars,
+		.svc-strip {
+			grid-template-columns: 1fr;
+		}
+
+		.founder__photo,
+		.founder__copy {
+			grid-column: 1 / -1;
+		}
+	}
+</style>

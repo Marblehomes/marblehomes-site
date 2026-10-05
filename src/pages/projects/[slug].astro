@@ -1,0 +1,81 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { projects, type Project } from '../../data/projects';
+
+export const getStaticPaths = (() =>
+	projects.map((project, i) => ({
+		params: { slug: project.slug },
+		props: { project, next: projects[(i + 1) % projects.length] },
+	}))) satisfies GetStaticPaths;
+
+interface Props {
+	project: Project;
+	next: Project;
+}
+
+const { project, next } = Astro.props;
+const others = projects.filter((p) => p.slug !== project.slug && p.slug !== next.slug);
+const more = [...others.filter((p) => p.category === project.category), ...others.filter((p) => p.category !== project.category)].slice(0, 2);
+---
+
+<Base title={`${project.name} — ${project.type}`} description={`${project.type} in ${project.suburb}, NSW by Marble Homes.`}>
+	<section class="stage" data-stage>
+		<div class="stage__media">
+			<Image src={project.image} alt={`${project.type} in ${project.suburb}`} widths={[960, 1440, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
+			<div class="stage__shade" data-stage-shade></div>
+		</div>
+		<div class="stage__panels">
+			<div class="stage__hero">
+				<div>
+					<span class="eyebrow" data-reveal>Project</span>
+					<h1 class="display t-mega" style="text-transform:none" data-split="load">{project.name}</h1>
+				</div>
+				<a class="scroll-cue" href="#details">
+					Details
+					<svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M6 1v12m0 0L1 8m5 5 5-5" stroke="currentColor" stroke-width="1.5"></path></svg>
+				</a>
+			</div>
+			<div class="stage__info" id="details">
+				<div class="grid-12">
+					<dl class="meta" data-reveal>
+						<div><dt>Suburb</dt><dd>{project.suburb}, NSW</dd></div>
+						<div><dt>Project type</dt><dd>{project.type}</dd></div>
+						<div><dt>Category</dt><dd>{project.category}</dd></div>
+						<div><dt>Delivered by</dt><dd>Marble Homes</dd></div>
+					</dl>
+					<dl class="stage__desc prose" data-reveal>
+						<dt>Overview</dt>
+						<dd style="margin:0"><p>{project.summary}</p></dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="reasons__head" style="margin-bottom:clamp(2.5rem,5vw,4rem)">
+			<h2 class="display t-h2" data-split>
+				More<br /><span class="t-muted">projects</span>
+			</h2>
+			<a class="pill pill--ghost" href="/projects/">Browse the portfolio</a>
+		</div>
+		<div class="project-grid">
+			{more.map((p) => <ProjectCard project={p} sizes="(max-width: 960px) 100vw, 48vw" />)}
+		</div>
+	</section>
+
+	<section class="section" style="padding-top:0">
+		<a class="next-project" href={`/projects/${next.slug}/`}>
+			<div>
+				<span class="eyebrow">Next project</span>
+				<div class="display t-display">{next.name}</div>
+			</div>
+			<div class="card__media">
+				<Image src={next.image} alt={`${next.type} in ${next.suburb}`} widths={[480, 900]} sizes="440px" />
+			</div>
+		</a>
+	</section>
+</Base>

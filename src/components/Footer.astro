@@ -1,0 +1,47 @@
+---
+import { company, nav, services } from '../data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer bg-deep" id="contact">
+	<div class="footer__cta">
+		<h2 class="display t-h2" data-split>
+			Have a project<br /><span class="t-muted">in mind?</span>
+		</h2>
+		<a class="pill pill--light" href="/contact/">Start a conversation</a>
+	</div>
+
+	<div class="footer__cols">
+		<div>
+			<h4 class="eyebrow">Contact</h4>
+			<address class="footer__address">
+				{company.addressLines.map((line) => <>{line}<br /></>)}
+			</address>
+			<div class="footer__contact">
+				<a href={`mailto:${company.email}`}>{company.email}</a>
+				<a href={company.phoneHref}>{company.phone}</a>
+			</div>
+		</div>
+		<div>
+			<h4 class="eyebrow">Explore</h4>
+			<ul class="footer__list">
+				<li><a href="/">Home</a></li>
+				{nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+				<li><a href="/contact/">Contact</a></li>
+			</ul>
+		</div>
+		<div>
+			<h4 class="eyebrow">Services</h4>
+			<ul class="footer__list">
+				{services.map((s) => <li><a href="/#services">{s.title}</a></li>)}
+			</ul>
+		</div>
+	</div>
+
+	<div class="footer__legal">
+		<span>© {year} {company.legalName}. All rights reserved.</span>
+		<span>Director: {company.director}</span>
+	</div>
+
+	<div class="wordmark" aria-hidden="true" data-fit>Marble Homes</div>
+</footer>

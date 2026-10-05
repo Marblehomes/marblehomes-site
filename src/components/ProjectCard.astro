@@ -1,0 +1,28 @@
+---
+import { Image } from 'astro:assets';
+import type { Project } from '../data/projects';
+
+interface Props {
+	project: Project;
+	sizes?: string;
+	eager?: boolean;
+}
+
+const { project, sizes = '(max-width: 960px) 100vw, 34vw', eager = false } = Astro.props;
+---
+
+<a class="card" href={`/projects/${project.slug}/`} data-category={project.category} data-reveal>
+	<div class="card__media">
+		<Image
+			src={project.image}
+			alt={`${project.type} in ${project.suburb}`}
+			widths={[480, 720, 960, 1280]}
+			sizes={sizes}
+			loading={eager ? 'eager' : 'lazy'}
+		/>
+	</div>
+	<div class="card__meta">
+		<span class="card__name">{project.name}</span>
+		<span class="card__type">{project.type}</span>
+	</div>
+</a>
