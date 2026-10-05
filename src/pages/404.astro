@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found">
+	<section class="page-hero" style="min-height:80svh">
+		<span class="eyebrow">404</span>
+		<h1 class="display t-display" data-split="load">
+			Page not<br /><span class="t-muted">found</span><span class="dot">.</span>
+		</h1>
+		<div class="page-hero__intro prose">
+			<p class="t-lead" style="color:var(--cream)">The page you were looking for has moved or no longer exists.</p>
+			<div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:2rem">
+				<a class="pill pill--light" href="/">Back to home</a>
+				<a class="pill pill--ghost" href="/projects/">See our projects</a>
+			</div>
+		</div>
+	</section>
+</Base>
