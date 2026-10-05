@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Check & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Lockfile uses the public npm registry
+        run: |
+          bad=$(grep -o '"resolved": "[^"]*"' package-lock.json | grep -v '"https://registry.npmjs.org/' || true)
+          if [ -n "$bad" ]; then
+            echo "::error file=package-lock.json::Cloudflare can only install from registry.npmjs.org. Offending entries:"
+            echo "$bad" | head -20
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - name: Type check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          for f in index.html 404.html _redirects projects/index.html; do
+            test -f "dist/$f" || { echo "::error::dist/$f is missing"; exit 1; }
+          done

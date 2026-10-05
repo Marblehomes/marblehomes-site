@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev --host --port 4321",
     "build": "astro build",
+    "check": "astro check",
     "preview": "astro preview --host --port 4321",
     "logo": "node scripts/make-logo.mjs"
   },
