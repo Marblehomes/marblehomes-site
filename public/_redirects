@@ -1,0 +1,25 @@
+# Legacy WordPress URLs
+/home               /           301
+/home/              /           301
+/project            /projects/  301
+/project/           /projects/  301
+/contact-us         /contact/   301
+/contact-us/        /contact/   301
+/why-choose-us      /about/     301
+/why-choose-us/     /about/     301
+
+# Legacy WooCommerce store
+/store              /           301
+/store/             /           301
+/shop               /           301
+/shop/              /           301
+/cart               /           301
+/cart/              /           301
+/checkout           /           301
+/checkout/          /           301
+/my-account         /           301
+/my-account/        /           301
+/product/*          /           301
+/product-category/* /           301
+/product-tag/*      /           301
+/step/*             /           301
