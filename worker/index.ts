@@ -72,7 +72,11 @@ async function handleContact(request: Request, env: Env) {
 	}
 
 	// Honeypot: bots fill the hidden field; pretend success so they don't retry.
-	if (String(form.get('company') ?? '').trim()) return json(200, { ok: true });
+	// Its name must not look like anything browsers autofill (e.g. "company"), or real enquiries get dropped.
+	if (String(form.get('mh_trap') ?? '').trim()) {
+		console.warn('Contact form honeypot triggered; enquiry dropped');
+		return json(200, { ok: true });
+	}
 
 	const enquiry = Object.fromEntries(
 		(Object.keys(LIMITS) as Field[]).map((k) => [k, String(form.get(k) ?? '').trim().slice(0, LIMITS[k])]),
