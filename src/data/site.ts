@@ -16,6 +16,9 @@ export const company = {
 	tagline: ['Architectural Design', 'Construction', 'Project Management'],
 };
 
+// Public Cloudflare Turnstile site key. 1x00000000000000000000AA is Cloudflare's always-pass test key.
+export const turnstileSiteKey = '1x00000000000000000000AA';
+
 export const nav = [
 	{ label: 'About', href: '/about/' },
 	{ label: 'Projects', href: '/projects/' },

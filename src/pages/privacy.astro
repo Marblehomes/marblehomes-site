@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+import { company } from '../data/site';
+
+const updated = 'October 2026';
+---
+
+<Base title="Privacy Policy" description={`How ${company.legalName} collects, uses and protects your personal information.`}>
+	<section class="page-hero">
+		<span class="eyebrow" data-reveal>Legal</span>
+		<h1 class="display t-display" data-split="load">
+			Privacy<br /><span class="t-muted">Policy</span><span class="dot">.</span>
+		</h1>
+		<div class="page-hero__intro prose" data-reveal>
+			<p class="t-lead" style="color:var(--cream)">
+				{company.legalName} respects your privacy. This policy explains what personal information we collect, why we collect it and how
+				we look after it.
+			</p>
+			<p>Last updated {updated}.</p>
+		</div>
+	</section>
+
+	<section class="section" style="padding-top:0">
+		<div class="legal prose" data-reveal>
+			<h2>What we collect</h2>
+			<p>When you contact us through this website, by email or by phone, we may collect:</p>
+			<ul>
+				<li>your name, email address and phone number;</li>
+				<li>the suburb or address of your project;</li>
+				<li>details you share about your project, budget or timeline.</li>
+			</ul>
+			<p>
+				We don't use advertising or tracking cookies. To protect our enquiry form from spam, Cloudflare Turnstile may process technical
+				information about your browser and device.
+			</p>
+
+			<h2>How we use it</h2>
+			<p>We use your information to:</p>
+			<ul>
+				<li>respond to your enquiry and prepare quotes or proposals;</li>
+				<li>plan, deliver and manage your project if you engage us;</li>
+				<li>meet our legal, insurance and building record-keeping obligations.</li>
+			</ul>
+			<p>We don't sell your personal information, and we won't send you marketing without your consent.</p>
+
+			<h2>Who we share it with</h2>
+			<p>
+				We share information only where needed to provide our services — for example with consultants, engineers, certifiers or
+				trades working on your project — and with service providers that run our website and email:
+			</p>
+			<ul>
+				<li>Cloudflare, which hosts this website and protects it from abuse;</li>
+				<li>Resend, which delivers enquiry form submissions to our inbox;</li>
+				<li>Microsoft, which provides our email service.</li>
+			</ul>
+			<p>
+				Some of these providers store or process data outside Australia, including in the United States. We take reasonable steps to
+				ensure they protect your information.
+			</p>
+
+			<h2>Storage and security</h2>
+			<p>
+				We keep your information only for as long as we need it for the purposes above or as required by law, and we take reasonable
+				steps to protect it from misuse, loss and unauthorised access.
+			</p>
+
+			<h2>Access and correction</h2>
+			<p>
+				You can ask to see the personal information we hold about you, or ask us to correct it, by contacting us using the details
+				below.
+			</p>
+
+			<h2>Questions and complaints</h2>
+			<p>
+				If you have a question or concern about how we handle your information, please contact us at
+				<a href={`mailto:${company.email}`}>{company.email}</a> or <a href={company.phoneHref}>{company.phone}</a>, or write to us at
+				{company.addressLines.join(', ')}. We'll respond as soon as we can.
+			</p>
+			<p>
+				If you're not satisfied with our response, you can contact the Office of the Australian Information Commissioner at
+				<a href="https://www.oaic.gov.au" rel="noopener">oaic.gov.au</a>.
+			</p>
+		</div>
+	</section>
+</Base>

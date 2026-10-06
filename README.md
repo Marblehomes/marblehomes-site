@@ -32,7 +32,7 @@ Marble Homes 官方网站 · 悉尼建筑设计、施工与项目管理
 
 ## 项目简介
 
-这是 Marble Homes 的品牌官网，一个纯静态网站，没有数据库和后端服务。
+这是 Marble Homes 的品牌官网。页面全部是静态文件，唯一的后端是联系表单接口 `/api/contact`，运行在同一个 Cloudflare Worker 里。
 
 | 页面 | 路径 | 说明 |
 | --- | --- | --- |
@@ -40,7 +40,8 @@ Marble Homes 官方网站 · 悉尼建筑设计、施工与项目管理
 | 关于 | `/about/` | 公司与团队介绍 |
 | 项目列表 | `/projects/` | 全部项目，可按 House / Duplex / Apartment 筛选 |
 | 项目详情 | `/projects/<slug>/` | 根据 `src/content/projects/` 自动生成，含介绍和图集 |
-| 联系我们 | `/contact/` | 联系方式与询价表单 |
+| 联系我们 | `/contact/` | 联系方式与询价表单，提交后发邮件到 info@ |
+| 隐私政策 | `/privacy/` | 个人信息收集与使用说明 |
 
 ## 技术栈
 
@@ -50,7 +51,8 @@ Marble Homes 官方网站 · 悉尼建筑设计、施工与项目管理
 | 动效 | [GSAP](https://gsap.com) + ScrollTrigger、[Lenis](https://lenis.darkroom.engineering) 平滑滚动 |
 | 字体 | Bricolage Grotesque、Inter（`@fontsource-variable`，自托管） |
 | 图片 | `astro:assets` + sharp，构建时自动压缩并生成多尺寸 |
-| 托管 | Cloudflare Workers 静态资源 |
+| 托管 | Cloudflare Workers（静态资源 + `/api/*` 接口） |
+| 联系表单 | Cloudflare Turnstile 防垃圾 + [Resend](https://resend.com) 发信 |
 | CI | GitHub Actions |
 
 ## 快速开始
@@ -62,7 +64,8 @@ npm ci          # 安装依赖
 npm run dev     # 本地开发 → http://localhost:4321
 npm run check   # 类型检查
 npm run build   # 生产构建，输出到 dist/
-npm run preview # 本地预览构建结果
+npm run preview # 本地预览构建结果（不含表单接口）
+npx wrangler dev --port 8787  # 预览构建结果 + 表单接口（先 npm run build）
 ```
 
 ## 部署是怎么工作的
@@ -82,9 +85,33 @@ flowchart LR
 
 - **GitHub Actions**（`.github/workflows/ci.yml`）只负责检查：每个 PR 和每次推送到 `main` 都会跑类型检查和构建。它**不负责**部署。
 - **Cloudflare Workers Builds** 负责部署：Cloudflare 监听这个仓库的 `main` 分支，有新提交就自动构建，大约 1 到 2 分钟后上线。
-- 部署配置在 `wrangler.jsonc`：把 `dist/` 当作静态资源发布，未知路径返回 `404.html`。
+- 部署配置在 `wrangler.jsonc`：`dist/` 作为静态资源发布，未知路径返回 `404.html`；只有 `/api/*` 会执行 `worker/index.ts`。
 - 其他分支推送后，Cloudflare 会生成预览地址，可以在 Cloudflare 控制台的 **Workers & Pages → marblehomes-site → Deployments** 里找到。
 - 回滚：在同一个 Deployments 页面，找到之前的版本，点 **Rollback**。
+
+### 联系表单
+
+```mermaid
+flowchart LR
+    A[访客提交表单] --> B[POST /api/contact]
+    B --> C{校验字段<br/>Turnstile 人机验证}
+    C -- 不通过 --> D[返回错误，页面提示电话和邮箱]
+    C -- 通过 --> E[Resend 发信]
+    E --> F[📬 info@marblehomes.com.au]
+```
+
+- 发件人是 `website@marblehomes.com.au`，Reply-To 是客户邮箱，在 Outlook 里直接点回复即可。
+- 收件人和发件人配置在 `wrangler.jsonc` 的 `vars`。
+- 两个密钥 `RESEND_API_KEY`、`TURNSTILE_SECRET_KEY` 只保存在 Cloudflare 控制台：**Workers & Pages → marblehomes-site → Settings → Variables and Secrets**。**不要写进代码。**
+- Turnstile 的公开 site key 在 `src/data/site.ts` 的 `turnstileSiteKey`。
+- 本地调试接口：在项目根目录建 `.dev.vars`（已被 git 忽略），写入 Cloudflare 提供的测试密钥：
+
+  ```bash
+  TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+  RESEND_API_KEY=re_xxx
+  ```
+
+- 表单日志：Cloudflare 控制台 **marblehomes-site → Observability**。
 
 ### 域名与 DNS
 
@@ -114,6 +141,7 @@ marblehomes-site/
 │   ├── pages/              # 路由（文件即页面）
 │   ├── scripts/main.ts     # 全站动效与交互
 │   └── styles/global.css   # 设计变量与全局样式
+├── worker/index.ts         # 联系表单接口 /api/contact
 ├── astro.config.mjs
 └── wrangler.jsonc          # Cloudflare 部署配置
 ```
@@ -212,6 +240,13 @@ gallery:             # 图集顺序
 <summary><b>本地页面动画不生效、控制台报 504 Outdated Optimize Dep？</b></summary>
 
 删除 `node_modules/.vite` 后重启 `npm run dev`。
+
+</details>
+
+<details>
+<summary><b>本地 wrangler dev 提交表单返回 502？</b></summary>
+
+公司办公网络会拦截 `api.resend.com`，本地无法真正发信，线上不受影响。用手机热点或在 Cloudflare 预览地址上测试。
 
 </details>
 

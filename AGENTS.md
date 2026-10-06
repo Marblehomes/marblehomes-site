@@ -4,11 +4,12 @@ Guidance for AI coding agents (Claude Code, Cursor, Codex, Copilot, etc.) workin
 
 ## Project
 
-Static marketing site for Marble Homes, a Sydney builder, served at https://marblehomes.com.au.
+Marketing site for Marble Homes, a Sydney builder, served at https://marblehomes.com.au.
 
-- Astro 7, static output only. No server, database or API routes.
+- Astro 7, static output. No database.
+- Hosting: one Cloudflare Worker (`wrangler.jsonc`). Static files in `dist/` are served directly; only `/api/*` runs Worker code (`worker/index.ts`).
+- The only API is `POST /api/contact`: validates the enquiry form, verifies Cloudflare Turnstile, then emails `info@marblehomes.com.au` via Resend.
 - Animations: GSAP + ScrollTrigger and Lenis, all in `src/scripts/main.ts`.
-- Hosting: Cloudflare Workers static assets (`wrangler.jsonc` serves `dist/`).
 - Node 22 (`.nvmrc`).
 
 ## Commands
@@ -18,7 +19,10 @@ npm ci          # install
 npm run dev     # http://localhost:4321
 npm run check   # astro check (types)
 npm run build   # outputs dist/
+npx wrangler dev --port 8787   # serves dist/ + the Worker API (run build first)
 ```
+
+For `wrangler dev`, put secrets in a git-ignored `.dev.vars`. Cloudflare's Turnstile test secrets: `1x0000000000000000000000000000000AA` (always passes), `2x0000000000000000000000000000000AA` (always fails).
 
 Before finishing any change, run `npm run check` and `npm run build`. Both must pass; CI runs the same steps.
 
@@ -27,6 +31,7 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 - Merging to `main` deploys to production automatically via Cloudflare Workers Builds (`npm run build` then `npx wrangler deploy`). There is no manual deploy step.
 - GitHub Actions (`.github/workflows/ci.yml`) only validates; it does not deploy.
 - Never add deploy credentials, API tokens or Cloudflare account IDs to the repo.
+- Worker secrets `RESEND_API_KEY` and `TURNSTILE_SECRET_KEY` live only in the Cloudflare dashboard (Settings → Variables and Secrets). Non-secret config is in `wrangler.jsonc` `vars`. The public Turnstile site key is `turnstileSiteKey` in `src/data/site.ts`.
 
 ## Where things live
 
@@ -39,6 +44,8 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 | Page shell, header, footer | `src/layouts/Base.astro`, `src/components/` |
 | Interactions and animations | `src/scripts/main.ts` |
 | Legacy URL redirects | `public/_redirects` |
+| Contact form API | `worker/index.ts` (client side in `src/scripts/main.ts`) |
+| Privacy policy | `src/pages/privacy.astro` |
 
 ## Conventions
 
@@ -51,6 +58,7 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 - **Links:** internal links use trailing slashes (`/about/`, `/projects/northbridge-house-2/`), matching `html_handling: auto-trailing-slash`.
 - **Redirects:** when renaming or removing a page, add a 301 to `public/_redirects` (both slash and no-slash forms).
 - **Code style:** tabs for indentation in `.astro`, `.ts` and `.mjs`; TypeScript strict mode. Match surrounding code; keep comments rare and only for non-obvious constraints.
+- **Contact form:** if you add or rename a form field, update both `contact.astro` and `LIMITS` in `worker/index.ts`. If you add a new data processor or start collecting new personal information, update `privacy.astro`.
 - **Copy:** Australian English (colour, organise, programme). All text and images must be Marble Homes' own. Don't copy wording or imagery from other builders' websites.
 
 ## Dependencies
@@ -60,6 +68,6 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 
 ## Don't
 
-- Don't commit `dist/`, `node_modules/`, `.astro/` or any `.env` files.
+- Don't commit `dist/`, `node_modules/`, `.astro/`, `.wrangler/`, `.dev.vars` or any `.env` files.
 - Don't edit or remove anything related to email DNS (MX, SPF, Microsoft 365). That lives in Cloudflare, not this repo, but don't suggest changes to it.
 - Don't change `wrangler.jsonc` or `astro.config.mjs` `site` without a clear reason; both affect production directly.

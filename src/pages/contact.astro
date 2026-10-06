@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import { company, services } from '../data/site';
+import { company, services, turnstileSiteKey } from '../data/site';
 import sydney from '../assets/site/sydney.jpg';
 ---
 
@@ -26,7 +26,16 @@ import sydney from '../assets/site/sydney.jpg';
 				<div><dt>Director</dt><dd>{company.director}</dd></div>
 			</dl>
 
-			<form class="form" data-contact-form data-email={company.email} novalidate data-reveal>
+			<form
+				class="form"
+				action="/api/contact"
+				method="post"
+				data-contact-form
+				data-email={company.email}
+				data-phone={company.phone}
+				novalidate
+				data-reveal
+			>
 				<div class="field">
 					<label for="f-first">First name *</label>
 					<input id="f-first" name="firstName" autocomplete="given-name" required />
@@ -64,11 +73,22 @@ import sydney from '../assets/site/sydney.jpg';
 				</div>
 				<div class="field field--full">
 					<label for="f-message">Message</label>
-					<textarea id="f-message" name="message" placeholder="Tell us about your project"></textarea>
+					<textarea id="f-message" name="message" maxlength="5000" placeholder="Tell us about your project"></textarea>
 				</div>
+				<div class="form__trap" aria-hidden="true">
+					<label>Company <input name="company" tabindex="-1" autocomplete="off" /></label>
+				</div>
+				<div class="field--full cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark" data-appearance="interaction-only"></div>
 				<div class="form__foot">
 					<button class="pill pill--light" type="submit">Send message</button>
 					<p class="form__status" role="status" data-form-status></p>
+					<p class="form__privacy">
+						We only use your details to respond to your enquiry. See our <a href="/privacy/">Privacy Policy</a>.
+					</p>
+				</div>
+				<div class="form__done" data-form-done tabindex="-1">
+					<h2 class="display t-h3">Thank you<span class="dot">.</span></h2>
+					<p>We've received your enquiry and will be in touch shortly.</p>
 				</div>
 			</form>
 		</div>
@@ -77,4 +97,6 @@ import sydney from '../assets/site/sydney.jpg';
 	<div class="media-band cover">
 		<Image src={sydney} alt="Aerial view of Sydney Harbour" widths={[960, 1440, 2560]} sizes="100vw" data-parallax />
 	</div>
+
+	<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </Base>

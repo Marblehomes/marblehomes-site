@@ -44,6 +44,9 @@ jobs:
 
       - name: Verify build output
         run: |
-          for f in index.html 404.html _redirects projects/index.html; do
+          for f in index.html 404.html _redirects projects/index.html contact/index.html privacy/index.html; do
             test -f "dist/$f" || { echo "::error::dist/$f is missing"; exit 1; }
           done
+
+      - name: Bundle Worker (dry run)
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"

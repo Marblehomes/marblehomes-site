@@ -1620,6 +1620,91 @@ p {
 	color: var(--greige);
 }
 
+.form__status:empty {
+	display: none;
+}
+
+.form__privacy {
+	flex-basis: 100%;
+	font-size: 0.85rem;
+	color: var(--greige);
+}
+
+.form__privacy a {
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.form__privacy a:hover {
+	color: var(--gold-light);
+}
+
+.form button:disabled {
+	opacity: 0.6;
+	cursor: progress;
+}
+
+.form__trap {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.form__done {
+	display: none;
+	grid-column: 1 / -1;
+	outline: none;
+}
+
+.form__done p {
+	margin-top: 1rem;
+	color: rgb(250 245 237 / 0.82);
+}
+
+.form[data-state='sent'] > * {
+	display: none;
+}
+
+.form[data-state='sent'] > .form__done {
+	display: block;
+}
+
+/* ---------- Legal ---------- */
+
+.legal {
+	max-width: 46rem;
+	margin-left: auto;
+}
+
+.legal h2 {
+	margin: 2.6rem 0 0.9rem;
+	font-family: var(--font-display);
+	font-size: clamp(1.25rem, 1.7vw, 1.6rem);
+	font-weight: 500;
+	letter-spacing: -0.02em;
+	color: var(--cream);
+}
+
+.legal ul {
+	margin: 0.8rem 0 0;
+	padding-left: 1.2rem;
+}
+
+.legal li + li {
+	margin-top: 0.4rem;
+}
+
+.legal a {
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.legal a:hover {
+	color: var(--gold-light);
+}
+
 /* ---------- Footer ---------- */
 
 .footer {

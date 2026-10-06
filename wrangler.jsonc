@@ -1,9 +1,19 @@
 {
-	"name": "marblehomes-site",
-	"compatibility_date": "2026-10-01",
-	"assets": {
-		"directory": "./dist",
-		"html_handling": "auto-trailing-slash",
-		"not_found_handling": "404-page"
-	}
+  "name": "marblehomes-site",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "observability": { "enabled": true },
+  "vars": {
+    "CONTACT_TO": "info@marblehomes.com.au",
+    "CONTACT_FROM": "Marble Homes Website <website@marblehomes.com.au>"
+  }
+  // Secrets (set in Cloudflare dashboard → Settings → Variables and Secrets, never in this file):
+  //   RESEND_API_KEY, TURNSTILE_SECRET_KEY
 }

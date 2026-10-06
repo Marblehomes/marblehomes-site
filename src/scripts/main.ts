@@ -328,29 +328,38 @@ if (lightbox) {
 /* ---------- Contact form ---------- */
 
 const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-form?.addEventListener('submit', (e) => {
+const turnstile = () => (window as unknown as { turnstile?: { reset(): void } }).turnstile;
+
+form?.addEventListener('submit', async (e) => {
 	e.preventDefault();
 	const status = form.querySelector<HTMLElement>('[data-form-status]');
+	const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+	const say = (msg: string) => status && (status.textContent = msg);
 	const data = new FormData(form);
 	const missing = ['firstName', 'email', 'phone'].filter((k) => !String(data.get(k) ?? '').trim());
 	if (missing.length || !form.checkValidity()) {
-		if (status) status.textContent = 'Please fill in your first name, a valid email and phone number.';
+		say('Please fill in your first name, a valid email and phone number.');
 		form.querySelector<HTMLInputElement>(`[name="${missing[0] ?? 'email'}"]`)?.focus();
 		return;
 	}
-	const name = `${data.get('firstName')} ${data.get('lastName') ?? ''}`.trim();
-	const body = [
-		`Name: ${name}`,
-		`Email: ${data.get('email')}`,
-		`Phone: ${data.get('phone')}`,
-		`Suburb: ${data.get('suburb') || '-'}`,
-		`Enquiry: ${data.get('enquiry')}`,
-		'',
-		String(data.get('message') ?? ''),
-	].join('\n');
-	const subject = `Website enquiry — ${data.get('enquiry')} (${name})`;
-	window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-	if (status) status.textContent = 'Opening your email app — thank you, we’ll be in touch shortly.';
+	if (!String(data.get('cf-turnstile-response') ?? '')) {
+		say('Just a moment — we’re checking you’re not a robot. Please try again in a few seconds.');
+		return;
+	}
+
+	if (button) button.disabled = true;
+	say('Sending…');
+	try {
+		const res = await fetch(form.action, { method: 'POST', body: data, headers: { accept: 'application/json' } });
+		if (!res.ok) throw new Error(String(res.status));
+		form.dataset.state = 'sent';
+		form.querySelector<HTMLElement>('[data-form-done]')?.focus();
+	} catch {
+		say(`Sorry, we couldn’t send your message. Please call ${form.dataset.phone} or email ${form.dataset.email}.`);
+		turnstile()?.reset();
+	} finally {
+		if (button) button.disabled = false;
+	}
 });
 
 /* ---------- Fit text to width ---------- */
