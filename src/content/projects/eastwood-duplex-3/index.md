@@ -1,6 +1,5 @@
 ---
 type: Duplex
-number: 3
 location: "Eastwood"
 order: 20
 cover: ./01.jpg

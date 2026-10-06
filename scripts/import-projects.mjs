@@ -91,14 +91,13 @@ async function importProject(dir) {
 	const frontmatter = [
 		'---',
 		`type: ${meta.type}`,
-		meta.number ? `number: ${meta.number}` : null,
 		`location: ${JSON.stringify(meta.location)}`,
 		`order: ${order}`,
 		`cover: ${names[0]}`,
 		'gallery:',
 		...names.map((n) => `  - ${n}`),
 		'---',
-	].filter((l) => l !== null);
+	];
 	await writeFile(path.join(out, 'index.md'), `${frontmatter.join('\n')}\n\n${readDescription(path.join(dir, doc))}\n`);
 	console.log(`import ${meta.slug} (${photos.length} photos)`);
 }

@@ -25,14 +25,14 @@ const more = [...others.filter((p) => p.type === project.type), ...others.filter
 const alt = (n: number) => `${project.title}, photo ${n} of ${project.gallery.length}`;
 ---
 
-<Base title={`${project.label}, ${project.location}`} description={description}>
+<Base title={`${project.type}, ${project.location}`} description={description}>
 	{
 		project.isPortrait ? (
 			<section class="split">
 				<div class="split__text">
 					<span class="eyebrow" data-reveal>Project</span>
 					<h1 class="display t-display" data-split="load">
-						{project.label} <span class="t-muted">— {project.location}</span>
+						{project.type} <span class="t-muted">— {project.location}</span>
 					</h1>
 					<dl class="meta" data-reveal>
 						<div><dt>Location</dt><dd>{project.location}, NSW</dd></div>
@@ -72,7 +72,7 @@ const alt = (n: number) => `${project.title}, photo ${n} of ${project.gallery.le
 						<div>
 							<span class="eyebrow" data-reveal>Project</span>
 							<h1 class="display t-mega" style="text-transform:none" data-split="load">
-								{project.label} <span class="t-muted">— {project.location}</span>
+								{project.type} <span class="t-muted">— {project.location}</span>
 							</h1>
 						</div>
 						<a class="scroll-cue" href="#details">
@@ -159,7 +159,7 @@ const alt = (n: number) => `${project.title}, photo ${n} of ${project.gallery.le
 		<a class="next-project" href={`/projects/${next.slug}/`}>
 			<div>
 				<span class="eyebrow">Next project</span>
-				<div class="display t-display">{next.label} <span class="t-muted">— {next.location}</span></div>
+				<div class="display t-display">{next.type} <span class="t-muted">— {next.location}</span></div>
 			</div>
 			<div class="card__media">
 				<Image src={next.cover} alt={`${next.title}, cover photo`} widths={[480, 900]} sizes="440px" />

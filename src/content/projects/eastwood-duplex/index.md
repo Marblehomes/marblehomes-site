@@ -2,7 +2,7 @@
 type: Duplex
 location: "Eastwood"
 order: 140
-cover: ./01.jpg
+cover: ./03.jpg
 gallery:
   - ./01.jpg
   - ./02.jpg

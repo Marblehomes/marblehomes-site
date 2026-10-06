@@ -9,7 +9,6 @@ const projects = defineCollection({
 	schema: ({ image }) =>
 		z.object({
 			type: z.enum(projectTypes),
-			number: z.number().int().min(2).optional(),
 			location: z.string().min(1),
 			order: z.number(),
 			cover: image(),

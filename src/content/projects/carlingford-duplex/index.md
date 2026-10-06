@@ -2,7 +2,7 @@
 type: Duplex
 location: "Carlingford"
 order: 90
-cover: ./05.jpg
+cover: ./01.jpg
 gallery:
   - ./01.jpg
   - ./02.jpg

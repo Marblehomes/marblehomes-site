@@ -160,7 +160,7 @@ marblehomes-site/
 
 **方法一：用导入脚本（macOS）**
 
-1. 准备一个文件夹，命名为「地名 + 类型 [+ 编号]」，例如 `North Ryde House`、`Eastwood Duplex 2`。类型只能是 House、Duplex、Apartment。
+1. 准备一个文件夹，命名为「地名 + 类型 [+ 编号]」，例如 `North Ryde House`、`Eastwood Duplex 2`。类型只能是 House、Duplex、Apartment。编号只用来区分同一地区的多个项目（体现在网址里，如 `/projects/eastwood-duplex-2/`），页面上不显示，都显示为 "Duplex — Eastwood"。
 2. 文件夹里放一份介绍文档（`.doc` 或 `.docx`）和这个项目的照片。照片多大都可以。
 3. 运行：
 
@@ -178,7 +178,6 @@ marblehomes-site/
 ```md
 ---
 type: House          # House | Duplex | Apartment
-number: 2            # 可选，显示为 "House 2 — North Ryde"
 location: "North Ryde"
 order: 160           # 越小越靠前，前 6 个上首页
 cover: ./01.jpg      # 封面

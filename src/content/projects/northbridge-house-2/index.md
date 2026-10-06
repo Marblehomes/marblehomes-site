@@ -1,6 +1,5 @@
 ---
 type: House
-number: 2
 location: "Northbridge"
 order: 150
 cover: ./02.jpg

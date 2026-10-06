@@ -2,7 +2,7 @@
 type: House
 location: "Northbridge"
 order: 30
-cover: ./07.jpg
+cover: ./02.jpg
 gallery:
   - ./01.jpg
   - ./02.jpg

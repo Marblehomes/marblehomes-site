@@ -8,9 +8,7 @@ export interface Project {
 	slug: string;
 	type: ProjectType;
 	location: string;
-	/** "House 2" */
-	label: string;
-	/** "House 2 — Northbridge" */
+	/** "House — Northbridge" */
 	title: string;
 	cover: ProjectEntry['data']['cover'];
 	gallery: ProjectEntry['data']['gallery'];
@@ -19,14 +17,12 @@ export interface Project {
 }
 
 const toProject = (entry: ProjectEntry): Project => {
-	const { type, number, location, cover, gallery } = entry.data;
-	const label = number ? `${type} ${number}` : type;
+	const { type, location, cover, gallery } = entry.data;
 	return {
 		slug: entry.id,
 		type,
 		location,
-		label,
-		title: `${label} — ${location}`,
+		title: `${type} — ${location}`,
 		cover,
 		gallery,
 		isPortrait: cover.height > cover.width,

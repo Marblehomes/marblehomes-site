@@ -1,6 +1,5 @@
 ---
 type: House
-number: 2
 location: "Carlingford"
 order: 110
 cover: ./01.jpg
