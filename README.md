@@ -93,25 +93,89 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A[访客提交表单] --> B[POST /api/contact]
-    B --> C{校验字段<br/>Turnstile 人机验证}
-    C -- 不通过 --> D[返回错误，页面提示电话和邮箱]
-    C -- 通过 --> E[Resend 发信]
-    E --> F[📬 info@marblehomes.com.au]
+    A[访客填写表单<br/>contact.astro] --> T[Turnstile 小组件<br/>浏览器内生成 token]
+    T --> B[POST /api/contact<br/>worker/index.ts]
+    B --> C{校验字段<br/>防机器人字段<br/>Turnstile siteverify}
+    C -- 不通过 --> D[返回错误<br/>页面提示电话和邮箱]
+    C -- 通过 --> E[Resend API 发信]
+    E --> F[📬 info@marblehomes.com.au<br/>Microsoft 365]
 ```
 
-- 发件人是 `website@marblehomes.com.au`，Reply-To 是客户邮箱，在 Outlook 里直接点回复即可。
-- 收件人和发件人配置在 `wrangler.jsonc` 的 `vars`。
-- 两个密钥 `RESEND_API_KEY`、`TURNSTILE_SECRET_KEY` 只保存在 Cloudflare 控制台：**Workers & Pages → marblehomes-site → Settings → Variables and Secrets**。**不要写进代码。**
-- Turnstile 的公开 site key 在 `src/data/site.ts` 的 `turnstileSiteKey`。
-- 本地调试接口：在项目根目录建 `.dev.vars`（已被 git 忽略），写入 Cloudflare 提供的测试密钥：
+整条链路涉及三个服务，**没有数据库，表单内容不会保存在网站上**，只存在于发出的邮件里。
 
-  ```bash
-  TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
-  RESEND_API_KEY=re_xxx
-  ```
+| 环节 | 服务 | 在哪里管理 |
+| --- | --- | --- |
+| 防垃圾 | Cloudflare Turnstile | Cloudflare 控制台 → **Turnstile**。小组件的 Hostname 里必须有 `marblehomes.com.au` |
+| 接口 | Cloudflare Worker `marblehomes-site` | Cloudflare 控制台 → **Workers & Pages → marblehomes-site** |
+| 发信 | [Resend](https://resend.com) | Resend 控制台：**Domains**（域名验证）、**API Keys**、**Emails**（发送记录） |
+| 收信 | Microsoft 365 | 和网站无关，邮箱本身的设置不需要改 |
 
-- 表单日志：Cloudflare 控制台 **marblehomes-site → Observability**。
+#### 配置项
+
+| 名称 | 放在哪里 | 说明 |
+| --- | --- | --- |
+| `turnstileSiteKey` | `src/data/site.ts` | Turnstile 公开 site key，可以提交到代码里 |
+| `TURNSTILE_SECRET_KEY` | Cloudflare → marblehomes-site → **Settings → Variables and Secrets**（类型 Secret） | Turnstile 后台和 site key 成对显示。**不要写进代码** |
+| `RESEND_API_KEY` | 同上（类型 Secret） | Resend → API Keys 创建，权限选 Sending access 即可。**不要写进代码** |
+| `CONTACT_TO` | `wrangler.jsonc` 的 `vars` | 收件人，现在是 `info@marblehomes.com.au` |
+| `CONTACT_FROM` | `wrangler.jsonc` 的 `vars` | 发件人 `Marble Homes Website <website@marblehomes.com.au>`，域名必须是 Resend 里已验证的域名 |
+
+- 邮件的 Reply-To 是客户填的邮箱，在 Outlook 里直接点回复就会回给客户。
+- Secret 在 Cloudflare 里修改后立即生效，不需要重新部署。更换密钥时先在 Resend / Turnstile 生成新的，填进 Cloudflare，确认表单正常后再删除旧的。
+- 改收件人或发件人：修改 `wrangler.jsonc` 的 `vars`，提交到 `main` 即可。
+
+#### Resend 用到的 DNS 记录
+
+Resend 发信需要在 Cloudflare DNS 里加几条记录，用来证明网站有权以 `@marblehomes.com.au` 的名义发信。具体的值以 Resend → **Domains → marblehomes.com.au** 页面为准：
+
+- `resend._domainkey`（TXT）：DKIM 签名公钥。
+- `send`（MX 和 TXT）：退信地址和 SPF，只作用于 `send.marblehomes.com.au` 子域名。
+
+这些记录的代理状态必须是 **DNS only（灰色云朵）**。**不要改动根域名的 MX 和 SPF 记录**，否则会影响 Microsoft 365 收发邮件。
+
+#### 接口返回码
+
+| HTTP | `error` | 含义 |
+| --- | --- | --- |
+| 200 | （`ok: true`） | 已交给 Resend 发出；或者防机器人字段被填了，假装成功（见下方排查） |
+| 400 | `bad_request` | 请求格式不对 |
+| 403 | `forbidden` | 请求不是从本站页面发出的 |
+| 403 | `verification_failed` | Turnstile 验证失败（机器人，或 token 过期，或 secret key 和 site key 不是一对） |
+| 405 | `method_not_allowed` | 不是 POST 请求 |
+| 422 | `invalid` | 缺少名字、电话，或邮箱格式不对 |
+| 502 | `send_failed` | Resend 拒绝发信，具体原因见 Worker 日志 |
+| 502 | `upstream_error` | 连不上 Turnstile 或 Resend |
+| 503 | `not_configured` | Cloudflare 里缺少两个 Secret |
+
+#### 排查：页面显示 Thank you，但没收到邮件
+
+1. 打开 Resend → **Emails**，看有没有这封邮件的记录。
+2. **有记录，状态是 Delivered**：邮件已经交给 Microsoft 365。先看收件箱的垃圾邮件文件夹，再看 [Microsoft 隔离区](https://security.microsoft.com/quarantine)（需要管理员账号），找到后释放并允许这个发件人。
+3. **有记录，状态是 Bounced / Failed**：点开记录看具体原因。常见的是域名验证失效，回到 Resend → Domains 检查 DNS 记录。
+4. **没有记录**：Worker 没有调用 Resend。到 Cloudflare 控制台 **marblehomes-site → Observability** 看日志。如果有 `Contact form honeypot triggered`，说明提交被当成机器人丢掉了，见下面的防机器人字段说明。
+
+#### 防机器人字段（honeypot）
+
+表单里有一个访客看不到的字段 `mh_trap`（在 `contact.astro` 里，用 CSS 隐藏）。正常人不会填它，机器人通常会把所有输入框都填上。只要这个字段有内容，Worker 就返回成功、但不发邮件，这样机器人不会换方式重试。
+
+> ⚠️ 这个字段的名字和标签**不能像浏览器会自动填写的内容**，比如 company、name、phone、address、email。
+> 浏览器会无视 `autocomplete="off"`，照样把保存过的信息填进去，真实客户的询价就会被悄悄丢掉。
+> 这个字段最早叫 `company`，就出过这个问题。改名时要同时修改 `contact.astro` 和 `worker/index.ts`。
+
+#### 本地调试接口
+
+在项目根目录建 `.dev.vars`（已被 git 忽略），写入 Cloudflare 提供的 Turnstile 测试密钥：
+
+```bash
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA   # 永远通过；2x...AA 永远失败
+RESEND_API_KEY=re_xxx
+```
+
+然后运行 `npm run build && npx wrangler dev --port 8787`。
+
+注意 `src/data/site.ts` 里是正式的 site key，它只在 `marblehomes.com.au` 上有效，本地页面上的小组件会验证失败。本地测试页面时，临时把它改成测试 key `1x00000000000000000000AA`，**不要提交这个修改**。
+
+公司网络会拦截 `api.resend.com`，所以本地无法真正发信，要测完整发信请用手机流量访问线上站。
 
 ### 域名与 DNS
 
@@ -246,6 +310,13 @@ gallery:             # 图集顺序
 <summary><b>本地 wrangler dev 提交表单返回 502？</b></summary>
 
 公司办公网络会拦截 `api.resend.com`，本地无法真正发信，线上不受影响。用手机热点或在 Cloudflare 预览地址上测试。
+
+</details>
+
+<details>
+<summary><b>表单显示 Thank you，但邮箱没收到？</b></summary>
+
+先看 Resend → Emails 有没有记录，再按 [排查：页面显示 Thank you，但没收到邮件](#排查页面显示-thank-you但没收到邮件) 一节的步骤处理。
 
 </details>
 

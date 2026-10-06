@@ -58,7 +58,9 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 - **Links:** internal links use trailing slashes (`/about/`, `/projects/northbridge-house-2/`), matching `html_handling: auto-trailing-slash`.
 - **Redirects:** when renaming or removing a page, add a 301 to `public/_redirects` (both slash and no-slash forms).
 - **Code style:** tabs for indentation in `.astro`, `.ts` and `.mjs`; TypeScript strict mode. Match surrounding code; keep comments rare and only for non-obvious constraints.
-- **Contact form:** if you add or rename a form field, update both `contact.astro` and `LIMITS` in `worker/index.ts`. If you add a new data processor or start collecting new personal information, update `privacy.astro`.
+- **Contact form:** if you add or rename a form field, update both `contact.astro` and `LIMITS` in `worker/index.ts`. If you add a new data processor or start collecting new personal information, update `privacy.astro`. Full flow, config, response codes and troubleshooting are in README → 联系表单.
+- **Honeypot (`mh_trap`):** a filled honeypot returns 200 without sending. Its name and label must never resemble anything browsers autofill (company, name, phone, address, email…); browsers ignore `autocomplete="off"`. It was originally `company`, and autofill silently dropped real enquiries.
+- **Turnstile site key:** the production key in `site.ts` only works on `marblehomes.com.au`. Use the test key `1x00000000000000000000AA` locally, but never commit it.
 - **Copy:** Australian English (colour, organise, programme). All text and images must be Marble Homes' own. Don't copy wording or imagery from other builders' websites.
 
 ## Dependencies
