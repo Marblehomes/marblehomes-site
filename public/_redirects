@@ -8,6 +8,32 @@
 /why-choose-us      /about/     301
 /why-choose-us/     /about/     301
 
+# Retired project pages (October 2026 portfolio refresh)
+/projects/st-ives            /projects/  301
+/projects/st-ives/           /projects/  301
+/projects/carlingford        /projects/  301
+/projects/carlingford/       /projects/  301
+/projects/epping             /projects/  301
+/projects/epping/            /projects/  301
+/projects/killara            /projects/  301
+/projects/killara/           /projects/  301
+/projects/burwood            /projects/  301
+/projects/burwood/           /projects/  301
+/projects/pymble             /projects/  301
+/projects/pymble/            /projects/  301
+/projects/ryde               /projects/  301
+/projects/ryde/              /projects/  301
+/projects/bronte             /projects/  301
+/projects/bronte/            /projects/  301
+/projects/ermington          /projects/  301
+/projects/ermington/         /projects/  301
+/projects/kellyville         /projects/  301
+/projects/kellyville/        /projects/  301
+/projects/macquarie-park     /projects/  301
+/projects/macquarie-park/    /projects/  301
+/projects/dundas-valley      /projects/  301
+/projects/dundas-valley/     /projects/  301
+
 # Legacy WooCommerce store
 /store              /           301
 /store/             /           301

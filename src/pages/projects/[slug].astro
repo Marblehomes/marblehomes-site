@@ -1,6 +1,7 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import { Image } from 'astro:assets';
+import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { projects, type Project } from '../../data/projects';
@@ -17,43 +18,130 @@ interface Props {
 }
 
 const { project, next } = Astro.props;
+const { Content } = await render(project.entry);
+const description = project.entry.body?.trim().split(/(?<=\.)\s/)[0] ?? `${project.type} in ${project.location} by Marble Homes.`;
 const others = projects.filter((p) => p.slug !== project.slug && p.slug !== next.slug);
-const more = [...others.filter((p) => p.category === project.category), ...others.filter((p) => p.category !== project.category)].slice(0, 2);
+const more = [...others.filter((p) => p.type === project.type), ...others.filter((p) => p.type !== project.type)].slice(0, 2);
+const alt = (n: number) => `${project.title}, photo ${n} of ${project.gallery.length}`;
 ---
 
-<Base title={`${project.name} — ${project.type}`} description={`${project.type} in ${project.suburb}, NSW by Marble Homes.`}>
-	<section class="stage" data-stage>
-		<div class="stage__media">
-			<Image src={project.image} alt={`${project.type} in ${project.suburb}`} widths={[960, 1440, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
-			<div class="stage__shade" data-stage-shade></div>
-		</div>
-		<div class="stage__panels">
-			<div class="stage__hero">
-				<div>
+<Base title={`${project.label}, ${project.location}`} description={description}>
+	{
+		project.isPortrait ? (
+			<section class="split">
+				<div class="split__text">
 					<span class="eyebrow" data-reveal>Project</span>
-					<h1 class="display t-mega" style="text-transform:none" data-split="load">{project.name}</h1>
-				</div>
-				<a class="scroll-cue" href="#details">
-					Details
-					<svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M6 1v12m0 0L1 8m5 5 5-5" stroke="currentColor" stroke-width="1.5"></path></svg>
-				</a>
-			</div>
-			<div class="stage__info" id="details">
-				<div class="grid-12">
+					<h1 class="display t-display" data-split="load">
+						{project.label} <span class="t-muted">— {project.location}</span>
+					</h1>
 					<dl class="meta" data-reveal>
-						<div><dt>Suburb</dt><dd>{project.suburb}, NSW</dd></div>
-						<div><dt>Project type</dt><dd>{project.type}</dd></div>
-						<div><dt>Category</dt><dd>{project.category}</dd></div>
+						<div><dt>Location</dt><dd>{project.location}, NSW</dd></div>
+						<div><dt>Type</dt><dd>{project.type}</dd></div>
 						<div><dt>Delivered by</dt><dd>Marble Homes</dd></div>
 					</dl>
-					<dl class="stage__desc prose" data-reveal>
-						<dt>Overview</dt>
-						<dd style="margin:0"><p>{project.summary}</p></dd>
-					</dl>
+					<div class="split__desc prose" data-reveal>
+						<Content />
+					</div>
 				</div>
-			</div>
-		</div>
+				<div class="split__media">
+					<Image
+						src={project.cover}
+						alt={`${project.title}, cover photo`}
+						widths={[640, 960, 1350]}
+						sizes="(max-width: 960px) 100vw, 42vw"
+						loading="eager"
+						fetchpriority="high"
+					/>
+				</div>
+			</section>
+		) : (
+			<section class="stage" data-stage>
+				<div class="stage__media">
+					<Image
+						src={project.cover}
+						alt={`${project.title}, cover photo`}
+						widths={[960, 1440, 1920, 2400]}
+						sizes="100vw"
+						loading="eager"
+						fetchpriority="high"
+					/>
+					<div class="stage__shade" data-stage-shade />
+				</div>
+				<div class="stage__panels">
+					<div class="stage__hero">
+						<div>
+							<span class="eyebrow" data-reveal>Project</span>
+							<h1 class="display t-mega" style="text-transform:none" data-split="load">
+								{project.label} <span class="t-muted">— {project.location}</span>
+							</h1>
+						</div>
+						<a class="scroll-cue" href="#details">
+							Details
+							<svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden="true">
+								<path d="M6 1v12m0 0L1 8m5 5 5-5" stroke="currentColor" stroke-width="1.5" />
+							</svg>
+						</a>
+					</div>
+					<div class="stage__info" id="details">
+						<div class="grid-12">
+							<dl class="meta" data-reveal>
+								<div><dt>Location</dt><dd>{project.location}, NSW</dd></div>
+								<div><dt>Type</dt><dd>{project.type}</dd></div>
+								<div><dt>Delivered by</dt><dd>Marble Homes</dd></div>
+							</dl>
+							<div class="stage__desc prose" data-reveal>
+								<span class="stage__label">Overview</span>
+								<Content />
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		)
+	}
+
+	<section class="section" aria-labelledby="gallery-title">
+		<h2 id="gallery-title" class="eyebrow" data-reveal>Gallery · {project.gallery.length} photos</h2>
+		<ul class="gallery" data-gallery>
+			{
+				project.gallery.map((img, i) => (
+					<li data-reveal>
+						<a href={img.src} data-gallery-item aria-label={`Open ${alt(i + 1)}`}>
+							<Image src={img} alt={alt(i + 1)} widths={[480, 720, 960, 1280]} sizes="(max-width: 960px) 100vw, 46vw" />
+						</a>
+					</li>
+				))
+			}
+		</ul>
 	</section>
+
+	<dialog class="lightbox" data-lightbox aria-label={`${project.title} photos`}>
+		<figure class="lightbox__stage">
+			{
+				project.gallery.map((img, i) => (
+					<Image
+						src={img}
+						alt={alt(i + 1)}
+						widths={[960, 1600, 2400]}
+						sizes="100vw"
+						loading="lazy"
+						data-lightbox-slide
+						hidden
+					/>
+				))
+			}
+		</figure>
+		<p class="lightbox__count" data-lightbox-count aria-live="polite"></p>
+		<button class="lightbox__btn lightbox__close" type="button" data-lightbox-close aria-label="Close">
+			<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 2l14 14M16 2 2 16" stroke="currentColor" stroke-width="1.5" /></svg>
+		</button>
+		<button class="lightbox__btn lightbox__prev" type="button" data-lightbox-prev aria-label="Previous photo">
+			<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M19 7H1m0 0 6-6M1 7l6 6" stroke="currentColor" stroke-width="1.5" fill="none" /></svg>
+		</button>
+		<button class="lightbox__btn lightbox__next" type="button" data-lightbox-next aria-label="Next photo">
+			<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 7h18m0 0-6-6m6 6-6 6" stroke="currentColor" stroke-width="1.5" fill="none" /></svg>
+		</button>
+	</dialog>
 
 	<section class="section">
 		<div class="reasons__head" style="margin-bottom:clamp(2.5rem,5vw,4rem)">
@@ -71,10 +159,10 @@ const more = [...others.filter((p) => p.category === project.category), ...other
 		<a class="next-project" href={`/projects/${next.slug}/`}>
 			<div>
 				<span class="eyebrow">Next project</span>
-				<div class="display t-display">{next.name}</div>
+				<div class="display t-display">{next.label} <span class="t-muted">— {next.location}</span></div>
 			</div>
 			<div class="card__media">
-				<Image src={next.image} alt={`${next.type} in ${next.suburb}`} widths={[480, 900]} sizes="440px" />
+				<Image src={next.cover} alt={`${next.title}, cover photo`} widths={[480, 900]} sizes="440px" />
 			</div>
 		</a>
 	</section>

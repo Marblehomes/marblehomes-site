@@ -1,12 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import { categories, projects } from '../../data/projects';
+import { projects, types } from '../../data/projects';
 
-const counts = Object.fromEntries(categories.map((c) => [c, projects.filter((p) => p.category === c).length]));
+const counts = Object.fromEntries(types.map((t) => [t, projects.filter((p) => p.type === t).length]));
 ---
 
-<Base title="Projects" description="Selected new builds, renovations, extensions and commercial fit-outs delivered by Marble Homes across Sydney.">
+<Base title="Projects" description="Custom houses, duplexes and apartment renovations built by Marble Homes across Sydney.">
 	<section class="page-hero">
 		<span class="eyebrow" data-reveal>Portfolio</span>
 		<h1 class="display t-display" data-split="load">
@@ -14,8 +14,8 @@ const counts = Object.fromEntries(categories.map((c) => [c, projects.filter((p) 
 		</h1>
 		<div class="page-hero__intro prose" data-reveal>
 			<p class="t-lead" style="color:var(--cream)">
-				Luxurious residential properties, commercial spaces and custom-designed homes across Sydney — built by Marble Homes on schedule, within
-				budget and with clients involved at every stage.
+				Custom houses, duplexes and apartment renovations across Sydney — built by Marble Homes on schedule, within budget and with clients
+				involved at every stage.
 			</p>
 		</div>
 	</section>
@@ -24,10 +24,10 @@ const counts = Object.fromEntries(categories.map((c) => [c, projects.filter((p) 
 		<div class="filters" role="toolbar" aria-label="Filter projects" data-filters>
 			<button class="filter is-active" type="button" data-filter="all" aria-pressed="true">All<sup>{projects.length}</sup></button>
 			{
-				categories.map((c) => (
-					<button class="filter" type="button" data-filter={c} aria-pressed="false">
-						{c}
-						<sup>{counts[c]}</sup>
+				types.map((t) => (
+					<button class="filter" type="button" data-filter={t} aria-pressed="false">
+						{t}
+						<sup>{counts[t]}</sup>
 					</button>
 				))
 			}

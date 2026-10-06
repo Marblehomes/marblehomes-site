@@ -38,8 +38,8 @@ Marble Homes 官方网站 · 悉尼建筑设计、施工与项目管理
 | --- | --- | --- |
 | 首页 | `/` | 品牌介绍、精选项目、服务、流程、选择我们的理由 |
 | 关于 | `/about/` | 公司与团队介绍 |
-| 项目列表 | `/projects/` | 全部项目，可按类别筛选 |
-| 项目详情 | `/projects/<slug>/` | 根据 `src/data/projects.ts` 自动生成 |
+| 项目列表 | `/projects/` | 全部项目，可按 House / Duplex / Apartment 筛选 |
+| 项目详情 | `/projects/<slug>/` | 根据 `src/content/projects/` 自动生成，含介绍和图集 |
 | 联系我们 | `/contact/` | 联系方式与询价表单 |
 
 ## 技术栈
@@ -104,12 +104,12 @@ marblehomes-site/
 │   └── make-logo.mjs       # 由原始 logo 生成浅色/深色变体
 ├── src/
 │   ├── assets/
-│   │   ├── projects/       # 项目图片
 │   │   └── site/           # 站点通用图片与 logo
+│   ├── content/projects/   # 每个项目一个文件夹：index.md + 照片
 │   ├── components/         # Header、Footer、ProjectCard
 │   ├── data/
 │   │   ├── site.ts         # 公司信息、导航、服务、流程等文案
-│   │   └── projects.ts     # 项目数据
+│   │   └── projects.ts     # 读取项目、生成标题与排序
 │   ├── layouts/Base.astro  # 页面骨架
 │   ├── pages/              # 路由（文件即页面）
 │   ├── scripts/main.ts     # 全站动效与交互
@@ -130,15 +130,41 @@ marblehomes-site/
 <details>
 <summary><b>新增一个项目</b></summary>
 
-1. 把图片放进 `src/assets/projects/`，文件名用小写加连字符，例如 `north-ryde.jpg`。
-2. 在 `src/data/projects.ts` 顶部 import 图片。
-3. 在 `projects` 数组里加一行：
+**方法一：用导入脚本（macOS）**
 
-   ```ts
-   make('north-ryde', 'North Ryde', 'New Build', 'New Build', northRyde),
+1. 准备一个文件夹，命名为「地名 + 类型 [+ 编号]」，例如 `North Ryde House`、`Eastwood Duplex 2`。类型只能是 House、Duplex、Apartment。
+2. 文件夹里放一份介绍文档（`.doc` 或 `.docx`）和这个项目的照片。照片多大都可以。
+3. 运行：
+
+   ```bash
+   npm run import-projects -- "~/Desktop/North Ryde House"
+   # 也可以传入一个包含多个项目文件夹的目录
    ```
 
-4. 项目详情页 `/projects/north-ryde/` 会自动生成。数组里前 6 个项目会出现在首页。
+   脚本会把照片压缩到长边 2400 像素以内并去掉 EXIF 和 GPS 信息，生成 `src/content/projects/north-ryde-house/`。已存在的项目会跳过，加 `--force` 才会覆盖。
+
+**方法二：手动**
+
+在 `src/content/projects/` 新建文件夹（例如 `north-ryde-house/`），放入照片和 `index.md`：
+
+```md
+---
+type: House          # House | Duplex | Apartment
+number: 2            # 可选，显示为 "House 2 — North Ryde"
+location: "North Ryde"
+order: 160           # 越小越靠前，前 6 个上首页
+cover: ./01.jpg      # 封面
+gallery:             # 图集顺序
+  - ./01.jpg
+  - ./02.jpg
+---
+
+第一段介绍。
+
+第二段介绍。
+```
+
+详情页 `/projects/north-ryde-house/` 会自动生成。如果封面是竖图，详情页顶部会自动改用左右分栏。
 
 </details>
 

@@ -33,8 +33,8 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 | What | Where |
 | --- | --- |
 | Company details, nav, services, process, reasons | `src/data/site.ts` |
-| Projects (drives `/projects/` and `/projects/[slug]/`) | `src/data/projects.ts` |
-| Images | `src/assets/projects/`, `src/assets/site/` |
+| Projects (drives `/projects/` and `/projects/[slug]/`) | `src/content/projects/<slug>/index.md` + photos; schema in `src/content.config.ts`; loaded and sorted by `src/data/projects.ts` |
+| Images | Project photos live next to their `index.md`; site images in `src/assets/site/` |
 | Design tokens (colours, fonts, spacing) | `:root` in `src/styles/global.css` |
 | Page shell, header, footer | `src/layouts/Base.astro`, `src/components/` |
 | Interactions and animations | `src/scripts/main.ts` |
@@ -42,12 +42,13 @@ Before finishing any change, run `npm run check` and `npm run build`. Both must 
 
 ## Conventions
 
-- **Content belongs in `src/data/`.** Don't hard-code company details, phone numbers or copy in pages or components; read from `site.ts` or `projects.ts`.
-- **Adding a project:** import the image in `projects.ts` and add a `make(slug, suburb, type, category, image)` entry. Pages are generated; don't create per-project files. The first 6 entries are featured on the home page.
-- **Images:** put source images in `src/assets/` and render them with `astro:assets` `<Image>` so they're optimised at build time. Don't put photos in `public/`. Filenames are lowercase-kebab-case.
+- **Content belongs in `src/data/` and `src/content/`.** Don't hard-code company details, phone numbers or copy in pages or components; read from `site.ts` or the projects collection.
+- **Adding a project:** prefer `npm run import-projects -- "<folder>"` (macOS; folder named like `North Ryde House 2` containing a .doc/.docx and photos). It resizes to 2400px, strips EXIF/GPS and writes `src/content/projects/<slug>/`. Otherwise create that folder by hand following an existing `index.md`. `type` is `House | Duplex | Apartment`; `number` is optional and renders as "House 2 — North Ryde"; the 6 lowest `order` values are featured on the home page. Don't create per-project page files.
+- **Project photos:** never commit originals straight from a camera or phone; run them through the import script (or equivalent resize + metadata strip) first so the repo stays small and no location data is published.
+- **Images:** render with `astro:assets` `<Image>` so they're optimised at build time. Don't put photos in `public/`. Filenames are lowercase-kebab-case.
 - **Styling:** use the CSS variables in `global.css` (`--taupe`, `--taupe-deep`, `--cream`, `--greige`, `--gold`, `--font-body`, …) rather than new literal colours. Keep the existing class naming style (`block__element`, `block--modifier`).
 - **Animations:** add behaviour in `src/scripts/main.ts`, scoped by a data attribute or class. Respect `prefers-reduced-motion` and use `gsap.matchMedia` for breakpoint-specific motion. Elements hidden for reveal must stay visible when JS is off (reveals are gated on the `js` class on `<html>`).
-- **Links:** internal links use trailing slashes (`/about/`, `/projects/st-ives/`), matching `html_handling: auto-trailing-slash`.
+- **Links:** internal links use trailing slashes (`/about/`, `/projects/northbridge-house-2/`), matching `html_handling: auto-trailing-slash`.
 - **Redirects:** when renaming or removing a page, add a 301 to `public/_redirects` (both slash and no-slash forms).
 - **Code style:** tabs for indentation in `.astro`, `.ts` and `.mjs`; TypeScript strict mode. Match surrounding code; keep comments rare and only for non-obvious constraints.
 - **Copy:** Australian English (colour, organise, programme). All text and images must be Marble Homes' own. Don't copy wording or imagery from other builders' websites.

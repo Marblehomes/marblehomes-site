@@ -273,6 +273,58 @@ filters.forEach((btn) => {
 	});
 });
 
+/* ---------- Project gallery lightbox ---------- */
+
+const lightbox = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+if (lightbox) {
+	const slides = [...lightbox.querySelectorAll<HTMLImageElement>('[data-lightbox-slide]')];
+	const count = lightbox.querySelector<HTMLElement>('[data-lightbox-count]');
+	let index = 0;
+
+	const show = (i: number) => {
+		const wrap = (n: number) => (n + slides.length) % slides.length;
+		index = wrap(i);
+		const preload = [index, wrap(index + 1), wrap(index - 1)];
+		slides.forEach((s, n) => {
+			s.hidden = n !== index;
+			if (preload.includes(n)) s.loading = 'eager';
+		});
+		if (count) count.textContent = `${index + 1} / ${slides.length}`;
+	};
+
+	$$<HTMLAnchorElement>('[data-gallery-item]').forEach((link, i) =>
+		link.addEventListener('click', (e) => {
+			e.preventDefault();
+			show(i);
+			lightbox.showModal();
+			lenis?.stop();
+		}),
+	);
+
+	lightbox.addEventListener('close', () => lenis?.start());
+	lightbox.querySelector('[data-lightbox-close]')?.addEventListener('click', () => lightbox.close());
+	lightbox.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(index - 1));
+	lightbox.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(index + 1));
+	lightbox.addEventListener('click', (e) => {
+		if (e.target === lightbox || (e.target as HTMLElement).classList.contains('lightbox__stage')) lightbox.close();
+	});
+	lightbox.addEventListener('keydown', (e) => {
+		if (e.key === 'ArrowLeft') show(index - 1);
+		if (e.key === 'ArrowRight') show(index + 1);
+	});
+
+	let startX = 0;
+	lightbox.addEventListener('touchstart', (e) => (startX = e.touches[0].clientX), { passive: true });
+	lightbox.addEventListener(
+		'touchend',
+		(e) => {
+			const dx = e.changedTouches[0].clientX - startX;
+			if (Math.abs(dx) > 40) show(index + (dx < 0 ? 1 : -1));
+		},
+		{ passive: true },
+	);
+}
+
 /* ---------- Contact form ---------- */
 
 const form = document.querySelector<HTMLFormElement>('[data-contact-form]');

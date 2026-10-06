@@ -11,18 +11,17 @@ interface Props {
 const { project, sizes = '(max-width: 960px) 100vw, 34vw', eager = false } = Astro.props;
 ---
 
-<a class="card" href={`/projects/${project.slug}/`} data-category={project.category} data-reveal>
+<a class="card" href={`/projects/${project.slug}/`} data-category={project.type} data-reveal>
 	<div class="card__media">
 		<Image
-			src={project.image}
-			alt={`${project.type} in ${project.suburb}`}
+			src={project.cover}
+			alt={`${project.title}, cover photo`}
 			widths={[480, 720, 960, 1280]}
 			sizes={sizes}
 			loading={eager ? 'eager' : 'lazy'}
 		/>
 	</div>
 	<div class="card__meta">
-		<span class="card__name">{project.name}</span>
-		<span class="card__type">{project.type}</span>
+		<span class="card__name">{project.label} <span class="t-muted">— {project.location}</span></span>
 	</div>
 </a>
